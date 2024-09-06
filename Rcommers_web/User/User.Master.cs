@@ -11,7 +11,12 @@ namespace Rcommers_web.User
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            if (Request.Url.AbsoluteUri.ToString().Contains("Default.aspx"))
+            {
+                // load the user control
+                Control sliderUserControl = (Control)Page.LoadControl("SliderUserControl.ascx");
+                pnlSliderUc.Controls.Add(sliderUserControl);
+            }
         }
     }
 }
