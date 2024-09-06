@@ -577,6 +577,7 @@
     <Content Include="AdminTemplate\src\counter.txt" />
     <Content Include="AdminTemplate\src\index.php" />
     <Content Include="Admin\Cantact.aspx" />
+    <Content Include="Admin\Category.aspx" />
     <Content Include="Admin\Dashbord.aspx" />
     <Content Include="Global.asax" />
     <Content Include="UserTemplate\css\style.css" />
@@ -648,6 +649,13 @@
     </Compile>
     <Compile Include="Admin\Cantact.aspx.designer.cs">
       <DependentUpon>Cantact.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\Category.aspx.cs">
+      <DependentUpon>Category.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\Category.aspx.designer.cs">
+      <DependentUpon>Category.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\Dashbord.aspx.cs">
       <DependentUpon>Dashbord.aspx</DependentUpon>
