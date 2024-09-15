@@ -20,7 +20,7 @@ namespace Rcommers_web.Admin
 
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            lblMsg.Visible = false;
         }
 
         protected void btnAddOrUpdate_Click(object sender, EventArgs e)
@@ -36,21 +36,64 @@ namespace Rcommers_web.Admin
             cmd.Parameters.AddWithValue("@IsActive", cbIsActive.Checked);
             if (fuCategoryImage.HasFile)
             {
-                if (Utils.isValidExtension(fuCategoryImage.FileName)
+                if (Utils.isValidExtension(fuCategoryImage.FileName))
                 {
                     string newImageName = Utils.getUniqueId();
                     fileExtension = Path.GetExtension(fuCategoryImage.FileName);
                     imagePath = "Images/Category/" + newImageName.ToString() + fileExtension;
-                    fuCategoryImage.PostedFile.SaveAs(Server .MapPath("~Images/Category/") + newImageName.ToString() + fileExtension;
-                    cmd.Parameters.AddWithValue("@CateoryImageUrl", imagePath);
+                    fuCategoryImage.PostedFile.SaveAs(Server.MapPath("~/Images/Category/") + newImageName.ToString() + fileExtension);
+                    cmd.Parameters.AddWithValue("@CategoryImageUrl", imagePath);
+                    isValidToExecute = true;
+                }
+                else
+                {
+                   lblMsg.Visible = false;
+                    lblMsg.Text = "Please select .jpg, .png, or .jpeg image";
+                    lblMsg.CssClass = "alert alert-danger";
+                    isValidToExecute = false;
                 }
  
+            }
+            else
+            {
+                isValidToExecute = true;
+            }
+            if (isValidToExecute)
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                try
+                {
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                    actionName = categoryId == 0 ? "inserted" : "Updated";
+                    lblMsg.Visible = true;
+                    lblMsg.Text = "Category"  + actionName +  "successfull!";
+                    lblMsg.CssClass = "alert alert-Success";
+                }
+                catch(Exception ex)
+                {
+                    lblMsg.Visible = true; 
+                    lblMsg.Text = "Error" + ex.Message;
+                    lblMsg.CssClass = "alert alert-danger";
+                }
+                finally
+                {
+                    con.Close();
+                }
             }
         }
 
         protected void btnClear_Click(object sender, EventArgs e)
         {
-
+            clear();
+        }
+        void clear()
+        {
+            textCategoryName.Text = string.Empty;
+            cbIsActive.Checked = false;
+            hfCategoryId.Value = "0";
+            btnAddOrUpdate.Text = "Add";
+            imagePreview.ImageUrl = string.Empty;
         }
     }
 }
