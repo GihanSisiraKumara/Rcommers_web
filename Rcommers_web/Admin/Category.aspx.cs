@@ -20,6 +20,8 @@ namespace Rcommers_web.Admin
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            Session["breadCumbTitle"] = "Manage Category";
+            Session["breadCumbPage"] = "Category";
             lblMsg.Visible = false;
             getCategories();
         }
@@ -47,6 +49,7 @@ namespace Rcommers_web.Admin
             cmd.Parameters.AddWithValue("@CategoryId", categoryId);
             cmd.Parameters.AddWithValue("@CategoryName", textCategoryName.Text.Trim());
             cmd.Parameters.AddWithValue("@IsActive", cbIsActive.Checked);
+
             if (fuCategoryImage.HasFile)
             {
                 if (Utils.isValidExtension(fuCategoryImage.FileName))
@@ -60,17 +63,30 @@ namespace Rcommers_web.Admin
                 }
                 else
                 {
-                   lblMsg.Visible = false;
-                    lblMsg.Text = "Please select .jpg, .png, or .jpeg image";
+                    lblMsg.Visible = true;
+                    lblMsg.Text = "Please select a valid image file (.jpg, .png, or .jpeg)";
                     lblMsg.CssClass = "alert alert-danger";
                     isValidToExecute = false;
                 }
- 
             }
             else
             {
+                // If updating and no new image is uploaded, retain the old image
+                if (categoryId != 0)
+                {
+                    // Fetch the existing image URL from the database
+                    SqlCommand getImageCmd = new SqlCommand("SELECT CategoryImageUrl FROM Categories WHERE CategoryId = @CategoryId", con);
+                    getImageCmd.Parameters.AddWithValue("@CategoryId", categoryId);
+                    con.Open();
+                    object result = getImageCmd.ExecuteScalar();
+                    con.Close();
+                    imagePath = result != null ? result.ToString() : string.Empty;
+                    cmd.Parameters.AddWithValue("@CategoryImageUrl", imagePath);
+                }
+
                 isValidToExecute = true;
             }
+
             if (isValidToExecute)
             {
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -78,15 +94,17 @@ namespace Rcommers_web.Admin
                 {
                     con.Open();
                     cmd.ExecuteNonQuery();
-                    actionName = categoryId == 0 ? "inserted" : "Updated";
+                    actionName = categoryId == 0 ? "inserted" : "updated";
                     lblMsg.Visible = true;
-                    lblMsg.Text = "Category"  + actionName +  "successfull!";
-                    lblMsg.CssClass = "alert alert-Success";
+                    lblMsg.Text = "Category " + actionName + " successfully!";
+                    lblMsg.CssClass = "alert alert-success";
+                    getCategories();
+                    clear();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    lblMsg.Visible = true; 
-                    lblMsg.Text = "Error" + ex.Message;
+                    lblMsg.Visible = true;
+                    lblMsg.Text = "Error: " + ex.Message;
                     lblMsg.CssClass = "alert alert-danger";
                 }
                 finally
@@ -107,6 +125,57 @@ namespace Rcommers_web.Admin
             hfCategoryId.Value = "0";
             btnAddOrUpdate.Text = "Add";
             imagePreview.ImageUrl = string.Empty;
+        }
+
+        protected void rCategory_ItemCommand(object source, RepeaterCommandEventArgs e)
+        {
+            lblMsg.Visible = false;
+            if(e.CommandName == "edit")
+            {
+                con = new SqlConnection(Utils.getConnection());
+                cmd = new SqlCommand("Category_Crud", con);
+                cmd.Parameters.AddWithValue("@Action", "GETBYID");
+                cmd.Parameters.AddWithValue("@CategoryId", e.CommandArgument);
+                cmd.CommandType = CommandType.StoredProcedure;
+                sda = new SqlDataAdapter(cmd);
+                dt = new DataTable();
+                sda.Fill(dt);
+                textCategoryName.Text = dt.Rows[0]["CategoryName"].ToString();
+                cbIsActive.Checked = Convert.ToBoolean(dt.Rows[0]["IsActive"]);
+                imagePreview.ImageUrl = string.IsNullOrEmpty(dt.Rows[0]["CategoryImageUrl"].ToString()) ? "../Images/No_image.png" : "../" + dt.Rows[0]["CategoryImageUrl"].ToString();
+                imagePreview.Height = 200;
+                imagePreview.Width = 200;
+                hfCategoryId.Value = dt.Rows[0]["CategoryId"].ToString();
+                btnAddOrUpdate.Text = "Update";
+            }
+            else if (e.CommandName == "delete")
+            {
+                con = new SqlConnection(Utils.getConnection());
+                cmd = new SqlCommand("Category_Crud", con);
+                cmd.Parameters.AddWithValue("@Action", "DELETE");
+                cmd.Parameters.AddWithValue("@CategoryId", e.CommandArgument);
+                cmd.CommandType = CommandType.StoredProcedure;
+                try
+                {
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                    lblMsg.Visible = true;
+                    lblMsg.Text = "Category Delete successfully!";
+                    lblMsg.CssClass = "alert alert-success";
+                    getCategories();
+                    
+                }
+                catch (Exception ex)
+                {
+                    lblMsg.Visible = true;
+                    lblMsg.Text = "Error: " + ex.Message;
+                    lblMsg.CssClass = "alert alert-danger";
+                }
+                finally
+                {
+                    con.Close();
+                }
+            }
         }
     }
 }
