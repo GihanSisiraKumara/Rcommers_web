@@ -6,11 +6,19 @@ Developed a dynamic and feature-rich E-Commerce platform using a robust stack of
 Key Features:
 
 Category & Product Management: Implemented CRUD operations for categories and products, enhancing administrative control over content.
+
+
 User Authentication & Authorization: Integrated user roles for admins and customers with secure login and sign-up functionalities.
+
+
 Database Integration: Used SQL Server for efficient data storage and management, optimizing queries for quick retrieval of data.
+
 Responsive Design: Ensured cross-device compatibility with CSS and JavaScript for a smooth shopping experience on both desktop and mobile platforms.
+
 File Upload & Image Management: Included image upload features for products and categories, supporting both image preview and update capabilities.
+
 This project demonstrates strong skills in backend development, UI/UX design, and database management, delivering a professional e-commerce solution.
+
 ![Shop home](https://github.com/user-attachments/assets/cb92f860-192c-4bf0-b64b-bd2967c67bdb)
 ![BODY](https://github.com/user-attachments/assets/7976d68a-760a-4a6d-9491-a126c4d4c707)
 ![footer](https://github.com/user-attachments/assets/383cece1-e908-4a00-b57c-d5590be304a2)
